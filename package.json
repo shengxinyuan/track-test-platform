@@ -6,7 +6,8 @@
   "license": "ISC",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
+    "build:mac": "node .electron-vue/build.js && electron-builder --mac",
+    "build:win": "node .electron-vue/build.js && electron-builder --win --x64",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -43,7 +44,7 @@
     },
     "mac": {
       "icon": "build/icons/icon.icns",
-      "hardenedRuntime" : true,
+      "hardenedRuntime": true,
       "gatekeeperAssess": false
     },
     "win": {
@@ -69,6 +70,8 @@
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0",
+    "vxe-table": "^2.9.26",
+    "xe-utils": "^2.8.1",
     "xlsx": "^0.16.4"
   },
   "devDependencies": {

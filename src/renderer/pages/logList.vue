@@ -3,61 +3,64 @@
     <PageHeader title="待测埋点列表" :tip="!mode ? '（请选择埋点开始测试）' : ''"/>
     <div class="table-con">
       <el-button @click="clearFilter">清除所有过滤器</el-button>
-      <span>全部版本共有：{{pointList.length}}个埋点，选中：{{multipleSelection.length}}个埋点</span>
-      <el-table
+      <span>全部版本共有：{{pointList.length}}个埋点，选中：{{multipleSelection.length || selectList.length}}个埋点</span>
+      <vxe-table
+        v-if="pointList.length"
         ref="logListTable"
         :data="pointList"
         class="logList-table"
-        height="80vh"
+        height="auto"
         border
         stripe
-        @selection-change="handleSelectionChange"
+        show-overflow="ellipsis"
+        @checkbox-change="handleSelectionChange"
       >
-        <el-table-column
-          type="selection">
-        </el-table-column>
-        <el-table-column
-          label="版本"
-          prop="versionName"
+        <vxe-table-column
+          width="40"
+          type="checkbox">
+        </vxe-table-column>
+        <vxe-table-column
+          title="版本"
+          field="versionName"
           width="100"
           :filters="filtersVersionList"
-          :filter-method="filterVersionHander"
+          :filter-multiple="true"
         >
-        </el-table-column>
-        <el-table-column label="状态" width="100" v-if="mode">
+        </vxe-table-column>
+        <vxe-table-column title="状态" width="100" v-if="mode">
           <template slot-scope="scope">
             <span>{{scope.row.status | filterStatus}}</span>
           </template>
-        </el-table-column>
-        <el-table-column
-          prop="eventName"
-          label="事件中文名">
-        </el-table-column>
-        <el-table-column
-          prop="eventId"
-          label="eventId">
-        </el-table-column>
-        <el-table-column
-          prop="tester"
-          label="测试人员"
-          :filters="filtersTestList"
-          :filter-method="filterVersionHander">
-        </el-table-column>
-        <el-table-column
-          prop="developerIos"
-          label="开发人员(iOS)"
-          :filters="filtersIOSList"
-          :filter-method="filterVersionHander"
-          width="160">
-        </el-table-column>
-        <el-table-column
-          prop="developerAndroid"
-          label="开发人员(Android)"
-          :filters="filtersAndroidList"
-          :filter-method="filterVersionHander"
-          width="160">
-        </el-table-column>
-      </el-table>
+        </vxe-table-column>
+        <vxe-table-column
+          field="eventName"
+          width="300"
+          title="事件中文名">
+        </vxe-table-column>
+        <vxe-table-column
+          field="eventId"
+          width="300"
+          title="eventId">
+        </vxe-table-column>
+        <vxe-table-column
+          field="tester"
+          title="测试人员"
+          width="auto"
+          :filters="[...filtersIOSList]">
+        </vxe-table-column>
+        <vxe-table-column
+          field="developerIos"
+          title="开发人员(iOS)"
+          width="auto"
+          :filters="filtersIOSList">
+        </vxe-table-column>
+        <vxe-table-column
+        width="auto"
+          field="developerAndroid"
+          title="开发人员(Android)"
+          :filters="filtersAndroidList">
+        </vxe-table-column>
+      </vxe-table>
     </div>
     
     <div>
@@ -79,10 +82,10 @@
         multipleSelection: [],
         selectList: [],
         testPlanId: '',
-        filtersVersion: [],
-        filtersTest: [],
-        filtersIOS: [],
-        filtersAndroid: [],
+        filtersVersionList: [],
+        filtersTestList: [],
+        filtersIOSList: [],
+        filtersAndroidList: []
       }
     },
     activated() {
@@ -109,48 +112,6 @@
         return txt
       }
     },
-    computed: {
-      filtersVersionList() {
-        let list = []
-        this.filtersVersion.forEach((val) => {
-          list.push({
-            value: val,
-            text: val
-          })
-        })
-        return list
-      },
-      filtersIOSList() {
-        let list = []
-        this.filtersIOS.forEach((val) => {
-          list.push({
-            value: val,
-            text: val
-          })
-        })
-        return list
-      },
-      filtersAndroidList() {
-        let list = []
-        this.filtersAndroid.forEach((val) => {
-          list.push({
-            value: val,
-            text: val
-          })
-        })
-        return list
-      },
-      filtersTestList() {
-        let list = []
-        this.filtersTest.forEach((val) => {
-          list.push({
-            value: val,
-            text: val
-          })
-        })
-        return list
-      },
-    },
     methods: {
       getTestPlanId() {
         if (this.$route.query.testPlanId) {
@@ -162,6 +123,11 @@
         }
       },
       getEventPoint() {
+        const loading = this.$loading({
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0)'
+        });
         this.getTestPlanId()
         this.$fetch({
           url: '/eventTracking/api/eventPoint/list',
@@ -171,10 +137,16 @@
           }
         }).then((res) => {
           if (res.code === 0) {
-            this.pointList = res.data.pointList
-            if (this.pointList && this.pointList.length) {
+            loading.close();
+            let pointList = res.data.pointList
+            let filtersVersion = []
+            let filtersTest = []
+            let filtersIOS = []
+            let filtersAndroid = []
+            
+            if (pointList && pointList.length) {
               this.selectList = [] 
-              this.pointList.forEach((val) => {
+              pointList.forEach((val) => {
                 if (val.isInTestplan === 1) {
                   this.selectList.push(val)
                 }
@@ -184,24 +156,50 @@
                 val.developerAndroid = eventPoint.raw['Android']
                 val.tester = eventPoint.raw['验证']
                 val.eventName = eventPoint.raw['事件中文名']
-                if (eventPoint.raw['任务版本'] && !this.filtersVersion.includes(eventPoint.raw['任务版本'])) {
-                  this.filtersVersion.push(eventPoint.raw['任务版本'])
+                if (eventPoint.raw['任务版本'] && !filtersVersion.includes(eventPoint.raw['任务版本'])) {
+                  filtersVersion.push(eventPoint.raw['任务版本'])
                 }
-                if (eventPoint.raw['iOS'] && !this.filtersIOS.includes(eventPoint.raw['iOS'])) {
-                  this.filtersIOS.push(eventPoint.raw['iOS'])
+                if (eventPoint.raw['iOS'] && !filtersIOS.includes(eventPoint.raw['iOS'])) {
+                  filtersIOS.push(eventPoint.raw['iOS'])
                 }
-                if (eventPoint.raw['Android'] && !this.filtersAndroid.includes(eventPoint.raw['Android'])) {
-                  this.filtersAndroid.push(eventPoint.raw['Android'])
+                if (eventPoint.raw['Android'] && !filtersAndroid.includes(eventPoint.raw['Android'])) {
+                  filtersAndroid.push(eventPoint.raw['Android'])
                 }
-                if (eventPoint.raw['验证'] && !this.filtersTest.includes(eventPoint.raw['验证'])) {
-                  this.filtersTest.push(eventPoint.raw['验证'])
+                if (eventPoint.raw['验证'] && !filtersTest.includes(eventPoint.raw['验证'])) {
+                  filtersTest.push(eventPoint.raw['验证'])
                 }
-                
               })
+              
+              filtersVersion.forEach((val) => {
+                this.filtersVersionList.push({
+                  label: val,
+                  value: val
+                })
+              })
+              filtersTest.forEach((val) => {
+                this.filtersTestList.push({
+                  label: val,
+                  value: val
+                })
+              })
+              filtersIOS.forEach((val) => {
+                this.filtersIOSList.push({
+                  label: val,
+                  value: val
+                })
+              })
+              filtersAndroid.forEach((val) => {
+                this.filtersAndroidList.push({
+                  label: val,
+                  value: val
+                })
+              })
+
+              this.pointList = res.data.pointList
 
               this.$nextTick(() => {
                 this.selectList.forEach(row => {
-                  this.$refs.logListTable.toggleRowSelection(row);
+                  this.$refs.logListTable.toggleCheckboxRow(row);
                 });
               })
             }
@@ -258,12 +256,8 @@
       clearFilter() {
         this.$refs.logListTable.clearFilter();
       },
-      filterVersionHander(value, row, column) {
-        const property = column['property'];
-        return row[property] === value;
-      },
-      handleSelectionChange(val) {
-        this.multipleSelection = val
+      handleSelectionChange({ records }) {
+        this.multipleSelection = records
       }
     }
   }

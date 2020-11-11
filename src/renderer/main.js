@@ -7,12 +7,16 @@ import Fetch from './plugins/fetch';
 import 'element-ui/lib/theme-chalk/index.css';
 import './styles/init.css';
 import '../utils/findInPage'
+import 'xe-utils'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/style.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 
 Vue.prototype.$fetch = Fetch
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(VXETable)
 
 new Vue({
   components: { App },
