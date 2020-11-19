@@ -4,6 +4,8 @@
 
 #### Build Setup
 
+node 版本 <10-14>
+
 ``` bash
 # install dependencies
 npm install --registry=http://www.npmjs.org

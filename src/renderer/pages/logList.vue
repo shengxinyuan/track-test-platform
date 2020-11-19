@@ -275,8 +275,7 @@
   overflow: hidden;
   .logList-table {
     margin-top: 16px;
-    overflow: scroll;
-    width: 100%;
+    width: 98%;
   }
 }
 .conform-btn {

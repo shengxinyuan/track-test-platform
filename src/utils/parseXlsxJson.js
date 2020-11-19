@@ -37,7 +37,7 @@ function formatAllXlsxJson (list, filterMeuns) {
       })
     }
   })
-  console.log(newList);
+  // console.log(newList);
   return newList
 }
 

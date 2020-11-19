@@ -17,7 +17,7 @@
           <div class="icon-label">个人中心</div>
         </div>
       </router-link>
-      <a href="http://localhost:8022"> test</a>
+      <!-- <a href="http://localhost:8022"> test</a> -->
     </div>
     <keep-alive>
       <router-view class="main-cont" @getLoginStatus="getLoginStatus"/>

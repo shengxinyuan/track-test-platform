@@ -320,7 +320,6 @@
         }).then((res) => {
           if (res.code == 0) {
             this.testDetailInfo = res.data
-            // console.log(this.testDetailInfo)
             this.detailShow = !this.detailShow
           }
         })
@@ -379,16 +378,12 @@
     margin: 16px;
   }
   .table {
-    width: 100%;
-    overflow: scroll;
+    width: 98%;
   }
   .dialog-con {
-    // margin-left: 26px;
-
     .num-con {
       border: 1px solid rgba(153, 153, 153, 0.28);
     }
-
     .span-item {
       margin-right: 20px
     }
