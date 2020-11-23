@@ -1,5 +1,5 @@
 import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
-import { autoUpdater } from 'electron-updater'
+// import { autoUpdater } from 'electron-updater'
 import packageJson from '../../package.json'
 const appVersion = packageJson.version
 

@@ -155,7 +155,7 @@
                 val.developerIos = eventPoint.raw['iOS']
                 val.developerAndroid = eventPoint.raw['Android']
                 val.tester = eventPoint.raw['验证']
-                val.eventName = eventPoint.raw['事件中文名']
+                val.eventName = eventPoint.raw['事件中文名'] || eventPoint.raw['事件描述']
                 if (eventPoint.raw['任务版本'] && !filtersVersion.includes(eventPoint.raw['任务版本'])) {
                   filtersVersion.push(eventPoint.raw['任务版本'])
                 }
