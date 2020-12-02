@@ -1,17 +1,19 @@
 <template>
   <div class="user">
     <PageHeader title="个人中心">
-      <div class="el-dropdown-link dropdown-title">
-        <i class="el-icon-setting user-icon"></i>
-        <el-dropdown @command="handleCommand">
-          <span>
-            {{userInfo.userName}}
-            <i class="el-icon-caret-bottom el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="logOut">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+      <div class="header-right">
+        <div class="el-dropdown-link dropdown-title">
+          <i class="el-icon-setting user-icon"></i>
+          <el-dropdown @command="handleCommand">
+            <span>
+              {{userInfo.userName}}
+              <i class="el-icon-caret-bottom el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="logOut">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
       </div>
     </PageHeader>
     <div class="user-cont">
@@ -232,6 +234,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
+  }
+  .header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
   }
   .dropdown-title {
     display: flex;

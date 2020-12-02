@@ -7,6 +7,7 @@ import Fetch from './plugins/fetch';
 import 'element-ui/lib/theme-chalk/index.css';
 import './styles/init.css';
 import '../utils/findInPage'
+import '../utils/qrcode.min.js'
 import 'xe-utils'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'

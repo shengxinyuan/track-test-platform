@@ -1,6 +1,8 @@
 <template>
   <div class="logger">
-    <PageHeader title="埋点测试 " :tip="` （${intStatus}  ip：${ip} port：${port}）`"/>
+    <PageHeader title="埋点测试 " :tip="` （${intStatus}  ip：${ip} port：${port}）`">
+      <QrcodeComp :ip="ip" :port="port" />
+    </PageHeader>
 
     <div class="tab">
       <el-button class="clear-btn" @click="clearAll">清除全部数据</el-button>
@@ -116,6 +118,7 @@
   import PageHeader from '../components/pageHeader'
   import StatusSelector from '../components/statusSelector'
   import StatusIcon from '../components/statusIcon'
+  import QrcodeComp from '../components/qrcode'
   import getIPAdress from '../../utils/getIPAdress'
   import parseUrl from '../../utils/parseUrl'
 
@@ -123,7 +126,8 @@
     components: {
       PageHeader,
       StatusSelector,
-      StatusIcon
+      StatusIcon,
+      QrcodeComp
     },
     data() {
       return {
