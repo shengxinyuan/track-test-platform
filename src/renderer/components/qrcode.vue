@@ -4,7 +4,7 @@
     <div v-if="status" class="dialog" @click.stop>
       <img class="icon-close" @click.stop="closeDialog" src="../assets/icon-close.png">
       <div id="qrCodeImg" class="qrimg"></div>
-      <el-input class="input" v-model="url"></el-input>
+      <el-input class="input" v-model="groupUrl"></el-input>
       <div class="cont">
         <el-button type="primary" size="small" class="btn" @click="proCode">生成二维码</el-button>
       </div>
@@ -19,30 +19,35 @@
     props: ['ip', 'port'],
     data () {
       return {
-        url: '',
         status: false
       }
     },
-    mounted() {
-      // 红袖
-      if (this.$store.state.common.groupId === 1000) {
-        this.url = 'https://app.hongxiu.com/debug/'
-      }
-      // 海外
-      if (this.$store.state.common.groupId === 1100) {
-        this.url = ''
-      }
-      // 起点
-      if (this.$store.state.common.groupId === 1200) {
-        this.url = ''
+    computed: {
+      groupUrl() {
+        let url = ''
+        // 红袖
+        if (this.$store.state.common.groupId == 1000) {
+          url = 'https://app.hongxiu.com/debug/'
+        }
+        // 海外
+        if (this.$store.state.common.groupId == 1100) {
+          url = 'https://app.hongxiu.com/debug/'
+        }
+        // 起点
+        if (this.$store.state.common.groupId == 1200) {
+          url = `QDReader://app/openHXTTP?query={"url":"ws://${this.ip}:3003/logger"}`
+        }
+
+        return url
       }
     },
+
     methods: {
       showDialog() {
         this.status = true
         setTimeout(() => {
           this.qrcode = new QRCode(document.getElementById('qrCodeImg'), {
-            text: this.url,
+            text: this.groupUrl,
             width: 200,
             height: 200,
             colorDark : "#000000",
@@ -55,7 +60,7 @@
       },
       proCode() {
         if (this.qrcode) {
-          this.qrcode.makeCode(this.url)
+          this.qrcode.makeCode(this.groupUrl)
         }
       }
     }
