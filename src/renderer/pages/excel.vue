@@ -80,9 +80,16 @@
         reader.readAsBinaryString(file.raw)
         reader.onload = ev => {
           let workBook = XLSX.read(ev.target.result, {type: 'binary', cellDates: true})
+          // //【Android完成】8月sprint2和sprint3
+          // let index = 0
+          // workBook.SheetNames.forEach((val, i) => {
+          //   console.log(val)
+          //   if (val == '11月sprint14') {
+          //     index = i
+          //   }
+          // })
           // 只取第一个sheet
           let workSheet = workBook.Sheets[workBook.SheetNames[0]]
-          
           // 起点规则
           if (this.groupId == 1200) {
             let data = XLSX.utils.sheet_to_json(workSheet)
@@ -95,26 +102,46 @@
             })
             const formatDate = data.map((item) => {
               let infoList = []
-              const eventIdList = ['pagename', 'event', 'col_name', 'button', 'pagedataid']
+              const eventIdList = ['pn(pagename)','event','col(col_name)','button(button)','pdid(pagedataid)'] // ['pagename', 'event', 'col_name', 'button', 'pagedataid']  // 'pn' 'event' 'col' 'btn' 'pdid'
               item['event_id'] = ''
+              let count = 0
               eventIdList.forEach((val) => {
-                if (item[val] && !item[val].includes('非固定值')) {
-                  item['event_id'] += item[val] + '_'
+                if (item[val] && !item[val].toString().includes('非固定值') && !(item[val] == 'Y')) {
+                  count++
+                  if (count === 1) {
+                    item['event_id'] = item[val]
+                  } else {
+                    item['event_id'] += '_' + item[val];
+                  }
+                } else {
+                  count++
+                  if (count === 1) {
+                    item['event_id'] = ' '; 
+                  } else {
+                    item['event_id'] += '_' + ' ';
+                  }
                 }
               })
-              
+  
+              // 取第一个sheet的sheetName作为version
+              const qdVersion = workBook.SheetNames[0];
+              item['任务版本'] = qdVersion;
 
+              const reg = /\((.+?)\)/g;
+              let finalItem = {}
               Object.entries(item).forEach(([k, v]) => {
+                const key = k.replace(reg, '')
                 infoList.push({
-                  key: k,
+                  key: key,
                   value: v
                 })
+                finalItem[key] = v
               })
               return {
-                name: item['事件中文名'],
+                name: finalItem['事件中文名'],
                 status: '',
                 infoList: infoList,
-                raw: item
+                raw: finalItem
               }
             })
             this.excelJsonChange(formatDate)
@@ -170,7 +197,7 @@
           list.push({
             eventId: val.raw.event_id,
             eventPoint: JSON.stringify(val),
-            version: val.raw['任务版本'],
+            version: val.raw['任务版本'], // 起点version取sheet0的sheetName
             isAvaliable: 1
           })
         }) 

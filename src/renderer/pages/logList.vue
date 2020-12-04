@@ -13,6 +13,7 @@
         border
         stripe
         show-overflow="ellipsis"
+        @checkbox-all="handleSelectionChange"
         @checkbox-change="handleSelectionChange"
       >
         <vxe-table-column
@@ -22,7 +23,7 @@
         <vxe-table-column
           title="版本"
           field="versionName"
-          width="100"
+          width="150"
           :filters="filtersVersionList"
           :filter-multiple="true"
         >

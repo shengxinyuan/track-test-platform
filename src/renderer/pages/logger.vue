@@ -51,7 +51,7 @@
                 :key="i"
                 :name="i"
                 class="list2-item" 
-                :class="selectedLogger.eventId === selectedItem.raw['event_id'] ? 'select' : ''"
+                :class="isSelect(selectedLogger)"
               >
                 <template slot="title">
                   <div class="list2-item-title-box">
@@ -69,7 +69,7 @@
                     <div class="detail-cont">
                       <div class="detail-info" v-for="(val, index1) in item.infoList" :key="index1">
                         <template v-if="(dialogCheckList.length && dialogCheckList.includes(val.key)) || dialogCheckList.length === 0">
-                          <span class="detail-info-key">{{val.key}}<statusIcon v-if="selectedLogger.eventId === selectedItem.raw['event_id'] && val.status != 0" :status="val.status" />:</span>
+                          <span class="detail-info-key">{{val.key}}<statusIcon v-if="isSelect(selectedLogger) && val.status != 0" :status="val.status" />:</span>
                           <span class="detail-info-value">{{val.value}}</span>
                         </template>
                       </div>
@@ -325,9 +325,44 @@
       },
       // 新增埋点数据
       addLogger (event) {
+        const groupId = this.$store.state.common.groupId
         if (this.receiveStatus) {
           let raw = event.data
-          if (/^\[HxBI/.test(raw)) {
+          if (groupId == 1200) {
+            if (/android/.test(raw) && /oaid/.test(raw)) {
+              // 起点android
+              try {
+                let list = []
+                list = raw.split('&')
+
+                let obj = {}
+                list.forEach((val, i) => {
+                  let list = []
+                  list = val.split('=')
+                  obj[list[0]] = list[1]
+                })
+                raw = obj
+              } catch (error) {
+                console.log('android', error);
+              }
+            } else {
+              // 起点ios
+              try {
+                let list = []
+                list = raw.split('&')
+
+                let obj = {}
+                list.forEach((val, i) => {
+                  let list = []
+                  list = val.split('=')
+                  obj[list[0]] = list[1]
+                })
+                raw = obj
+              } catch (error) {
+                console.log('android', error);
+              }
+            }
+          } else if (/^\[HxBI/.test(raw)) {
             // 红袖iOS
             try {
               let rawJson = raw.replace('[HxBI]: ', '')
@@ -368,26 +403,40 @@
             raw['event_id'] = raw.event_id || raw.eid || raw.eventId
           }
 
+          // 起点数据event_id拼接
+          if(!raw['event_id'] && groupId == 1200) {
+            raw['event_id'] = this.getQDEventId(raw)
+          }
+
           this.receiveList.push(raw)
 
           // 选中埋点，埋点比对找到相同的eventId进行比对
           if (this.selectedItem) {
             const reg = /^[Y]|\u679a\u4e3e/;
             let hasEventId = false
-            let eventId = raw['event_id'] || raw['eventId']
-            let isSelect = this.selectedItem.raw['event_id'] === eventId
             let infoList = []
+            let eventId = raw['event_id'] || raw['eventId']
+            let isSelect = this.selectedItem.raw['event_id'] === eventId //非起点匹配，因为event_id唯一
+            // 起点even_id 模糊匹配
+            if (groupId == 1200) {
+              isSelect = this.compareQDEventId(eventId)
+            }
 
             Object.entries(raw).forEach(([k, v]) => {
               const value = this.selectedItem.raw[k]
               if (!value) {
-                status = 0
+                status = 0 // ignore
               } else if (value == v) {
-                status = 1
-              } else if (value != v && (reg.test(value) || k == 'extend1' || k == 'param')) {
+                status = 1 // success
+              } else if ((reg.test(value) 
+                || k == 'extend1' 
+                || k == 'param' 
+                || value.toString().includes('非固定值')
+                || groupId == 1200)
+                &&  value != v) { // '非固定值'校验目前只有起点
                 status = 3
-              } else if (value != v && !reg.test(value)) {
-                status = 2
+              } else if (!reg.test(value) && value != v) {
+                status = 2  // danger
               } else {
                 status = 4
               }
@@ -408,12 +457,11 @@
                   infoList.push({
                     key: info.key,
                     value: '',
-                    status: 2
+                    status: 2  // selectedItem中所有给出的字段，即使是不确定是我值，若上报数据中数据为空，status会重置为 2（danger）
                   })
                 }
               }
             })
-            
             this.selectedLoggerList.forEach((val, index) => {
               if (val.eventId === eventId) {
                 val.children.push({
@@ -449,6 +497,54 @@
             this.$refs.list3.scrollTop = 10000000
           })
         }
+      },
+      // 是否匹配到上报数据
+      isSelect(selectedLogger) {
+        // 起点event_id 需要模糊匹配
+        if (this.$store.state.common.groupId == 1200) {
+          return this.compareQDEventId(selectedLogger.eventId) ? 'select' : ''
+        } else {
+          return selectedLogger.eventId === this.selectedItem.raw['event_id'] ? 'select' : ''
+        }
+      },
+      // 获取【起点】的 event_id
+      getQDEventId(raw) {
+        const eventIdList = ['pn','event','col','button','pdid']
+        let event_id = ''
+        let count = 0
+        eventIdList.forEach((val) => {
+          if (raw[val] && !raw[val].toString().includes('非固定值') && !(raw[val] == 'Y')) {
+            count++
+            if (count === 1) {
+              event_id = raw[val]
+            } else {
+              event_id += '_' + raw[val]
+            }
+          } else {
+            count++
+            if (count === 1) {
+              event_id = ' '
+            } else {
+              event_id += '_' + ' '
+            }
+          }
+        })
+        return event_id
+      },
+      // 模糊匹配起点的event_id
+      compareQDEventId(eventId) {
+        let isSelect = false
+        const selectedList = this.selectedItem.raw['event_id'].split('_')
+        const currentList = eventId.split('_')
+        for(let i = 0; i < selectedList.length; i++) {
+          if (selectedList[i] != ' ') {
+            isSelect = selectedList[i] === currentList[i]
+            if (!isSelect) {
+              break
+            }
+          }
+        }
+        return isSelect
       },
       // 删除
       deleteList(list) {
@@ -614,7 +710,7 @@
   }
 } 
 .list1 {
-  width: 400px;
+  width: 450px;
   .list-title {
     overflow: hidden;
     background: #fafafa;
