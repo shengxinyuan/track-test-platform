@@ -182,7 +182,7 @@
       }
     },
 
-    activated () {
+    mounted () {
       this.groupId = this.$store.state.common.groupId
 
       Promise.all([this.loadTestPlanData(), this.loadVersionData()]).then(res=>{

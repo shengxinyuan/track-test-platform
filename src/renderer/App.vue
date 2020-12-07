@@ -19,9 +19,8 @@
       </router-link>
       <!-- <a href="http://localhost:8022"> test</a> -->
     </div>
-    <keep-alive>
-      <router-view class="main-cont" @getLoginStatus="getLoginStatus"/>
-    </keep-alive>
+    
+    <router-view class="main-cont" @getLoginStatus="getLoginStatus"/>
 
     <el-dialog
       title="登录"

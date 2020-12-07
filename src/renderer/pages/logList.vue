@@ -89,7 +89,7 @@
         filtersAndroidList: []
       }
     },
-    activated() {
+    mounted() {
       this.getEventPoint()
     },
     filters: {

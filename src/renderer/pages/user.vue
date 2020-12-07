@@ -148,7 +148,7 @@
       }
     },
 
-    activated () {
+    mounted () {
       this.loadData()
     },
 
