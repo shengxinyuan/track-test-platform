@@ -377,19 +377,17 @@
             } catch (error) {
               console.log('iOS', error);
             }
-          } else if (/android/.test(raw) && !/eid/.test(raw)) {
-            // 红袖android
+          } else if (/android/.test(raw)) {
             try {
+              // 红袖android
               raw = JSON.parse(raw)
             } catch (error) {
-              console.log('android', error);
-            }
-          } else if (/android/.test(raw) && /eid/.test(raw)) {
-            // 海外android
-            try {
-              raw = parseUrl(raw)
-            } catch (error) {
-              console.log('android', error);
+              // 海外android
+              try {
+                raw = parseUrl(raw)
+              } catch (error) {
+                console.log('android', error);
+              }
             }
           } else {
             this.receiveList.push(raw)
@@ -424,7 +422,7 @@
               const value = this.selectedItem.raw[k]
               if (!value) {
                 status = 0 // ignore
-              } else if (value == v) {
+              } else if (value == v || value.toString().includes('任意值Y')) {
                 status = 1 // success
               } else if ((reg.test(value) 
                 || k == 'extend1' 
