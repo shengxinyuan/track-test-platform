@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, Menu } from 'electron'
+import { app, BrowserWindow, globalShortcut, Menu, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import packageJson from '../../package.json'
 const appVersion = packageJson.version
@@ -86,6 +86,13 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+app.on('web-contents-created', (e, webContents) => {
+  webContents.on('new-window', (event, url) => {
+      event.preventDefault();
+      shell.openExternal(url);
+  });
+});
 
 // autoUpdater.on('update-downloaded', () => {
 //   autoUpdater.quitAndInstall()

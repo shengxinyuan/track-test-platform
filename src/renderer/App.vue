@@ -4,20 +4,30 @@
       <div>
         <img class="logo" src="./assets/logger-logo.png" alt="">
       </div>
+      <a href="https://yuewen.lexiangla.com/teams/k100074/docs/c935a20ee1c811eaae650a58ac135252?company_from=yuewen" class="route-list-item" target="_blank">
+        <div class="icon-box">
+          <img class="icon-item" src="./assets/help.png">
+          <div class="icon-label">帮助文档</div>
+        </div>
+      </a>
       <router-link :to="v.path" v-for="(v) in list" :key="v.path" class="route-list-item">
         <div class="icon-box" :class="path == v.path ? 'active':''">
           <img class="icon-item"  :src="v.icon">
           <div class="icon-label">{{v.txt}}</div>
         </div>
       </router-link>
-
-      <router-link to="/user" class="route-list-item last">
-        <div class="icon-box" :class="path == '/user' ? 'active':''">
-          <img class="icon-item" src="./assets/user.png">
-          <div class="icon-label">个人中心</div>
+      <div class="last">
+        <div class="icon-box">
+          <div class="icon-label-l">{{$store.state.common.groupName}}</div>
         </div>
-      </router-link>
-      <!-- <a href="http://localhost:8022"> test</a> -->
+        <router-link to="/user" class="route-list-item">
+          <div class="icon-box" :class="path == '/user' ? 'active':''">
+            <img class="icon-item" src="./assets/user.png">
+            <div class="icon-label">个人中心</div>
+          </div>
+        </router-link>
+      </div>
+      
     </div>
     
     <router-view class="main-cont" @getLoginStatus="getLoginStatus"/>
@@ -211,6 +221,14 @@
       color: #fff;
       text-align: center;
       font-size: 12px;
+      text-decoration: none !important;
+    }
+    .icon-label-l {
+      margin-top: 6px;
+      width: 100%;
+      color: #fff;
+      text-align: center;
+      font-size: 16px;
       text-decoration: none !important;
     }
   }

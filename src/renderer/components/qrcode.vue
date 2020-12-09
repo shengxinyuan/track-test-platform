@@ -4,7 +4,8 @@
     <div v-if="status" class="dialog" @click.stop>
       <img class="icon-close" @click.stop="closeDialog" src="../assets/icon-close.png">
       <div id="qrCodeImg" class="qrimg"></div>
-      <el-input class="input" v-model="groupUrl"></el-input>
+      <el-input class="input" v-model="groupUrl" clearable></el-input>
+      <div class="tip" v-html="tip"></div>
       <div class="cont">
         <el-button type="primary" size="small" class="btn" @click="proCode">生成二维码</el-button>
       </div>
@@ -19,31 +20,33 @@
     props: ['ip', 'port'],
     data () {
       return {
-        status: false
+        status: false,
+        groupUrl: '',
+        tip: ''
       }
     },
-    computed: {
-      groupUrl() {
-        let url = ''
-        // 红袖
-        if (this.$store.state.common.groupId == 1000) {
-          url = 'https://app.hongxiu.com/debug/'
-        }
-        // 海外
-        if (this.$store.state.common.groupId == 1100) {
-          url = 'https://app.hongxiu.com/debug/'
-        }
-        // 起点
-        if (this.$store.state.common.groupId == 1200) {
-          url = `QDReader://app/openHXTTP?query={"url":"ws://${this.ip}:3003/logger"}`
-        }
-
-        return url
+    mounted() {
+      // 红袖
+      if (this.$store.state.common.groupId == 1000) {
+        this.groupUrl = 'https://app.hongxiu.com/debug/'
+        this.tip = '<p>iOS: https://app.hongxiu.com/debug/</p><p>Android: https://app.hongxiu.com/debug/</p>'
       }
-    },
+      // 海外
+      if (this.$store.state.common.groupId == 1100) {
+        this.groupUrl = 'https://app.hongxiu.com/debug/'
+      }
+      // 起点
+      if (this.$store.state.common.groupId == 1200) {
+        this.groupUrl = `QDReader://app/openHXTTP?query={"url":"ws://${this.ip}:3003/logger"}`
+        this.tip = '<p>默认url: QDReader://app/openHXTTP?query={"url":"ws://${this.ip}:3003/logger"}</p>'
+      }
 
+    },
     methods: {
       showDialog() {
+        if(this.status) {
+          return
+        }
         this.status = true
         setTimeout(() => {
           this.qrcode = new QRCode(document.getElementById('qrCodeImg'), {
@@ -75,7 +78,6 @@
     top: 10px;
     left: 10px;
     width: 300px;
-    height: 280px;
     padding: 20px;
     border: 1px solid #ccc;
     background: #fff;
@@ -98,6 +100,9 @@
       line-height: 200px;
       text-align: center;
       margin: 0 auto;
+    }
+    .tip {
+      font-size: 12px;
     }
     .cont {
       display: flex;
