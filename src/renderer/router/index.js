@@ -6,6 +6,7 @@ import Excel from '../pages/excel'
 import User from '../pages/user'
 import LogList from '../pages/logList'
 import TestList from '../pages/testList'
+import WebPage from '../pages/webPage'
 
 const originalPush = Router.prototype.push
 Router.prototype.push = function push(location) {
@@ -44,6 +45,11 @@ export default new Router({
       path: '/user',
       name: 'user',
       component: User
+    },
+    {
+      path: '/webPage',
+      name: 'webPage',
+      component: WebPage
     },
     {
       path: '*',

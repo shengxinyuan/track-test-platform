@@ -40,6 +40,11 @@
                 size="mini"
                 type="text"
                 @click="goLogList(scope.$index, scope.row)">修改埋点</el-button>
+              <el-button
+                v-if="scope.row.jobUrl"
+                size="mini"
+                type="text"
+                @click="goWeb(scope.$index, scope.row)">自动扫描</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -305,6 +310,10 @@
       goLogList(index, testPlan) {
         const testPlanId = testPlan.testPlanId
         this.$router.push(`/logList?testPlanId=${testPlanId}`)
+      },
+
+      goWeb(index, testPlan) {
+        this.$router.push(`/webPage?url=${testPlan.jobUrl}&title=${testPlan.name} => 埋点自动扫描`)
       },
 
       /*
