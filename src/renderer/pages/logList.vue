@@ -1,9 +1,11 @@
 <template>
   <div class="logList">
     <PageHeader title="待测埋点列表" :tip="!mode ? '（请选择埋点开始测试）' : ''"/>
-    <div class="table-con">
+    <div class="filters">
       <el-button @click="clearFilter">清除所有过滤器</el-button>
       <span>全部版本共有：{{pointList.length}}个埋点，选中：{{multipleSelection.length || selectList.length}}个埋点</span>
+    </div>
+    <div class="table-con">
       <vxe-table
         v-if="pointList.length"
         ref="logListTable"
@@ -63,8 +65,7 @@
         </vxe-table-column>
       </vxe-table>
     </div>
-    
-    <div>
+    <div class="conform-btn-box">
       <el-button type="primary" class="conform-btn" @click="btnClick">{{ mode === 'test' ? '修改用例' : '开始测试'}}</el-button>
     </div>
   </div>
@@ -268,18 +269,25 @@
 @import '../styles/var.scss';
 .logList {
   height: 100vh;
-  background: #f8f8f9
+  background: #f8f8f9;
+  display: flex;
+  flex-direction: column;
+}
+.filters {
+  margin: 16px 16px 0 16px;
 }
 .table-con {
   margin: 16px;
-  height: calc(100% - 150px);
+  flex: 1;
   overflow: hidden;
   .logList-table {
-    margin-top: 16px;
-    width: 98%;
+    width: 99%;
   }
 }
-.conform-btn {
-  margin: 0 16px;
+.conform-btn-box {
+  padding-bottom: 16px;
+  .conform-btn {
+    margin: 0 16px;
+  }
 }
 </style>

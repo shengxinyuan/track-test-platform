@@ -78,12 +78,13 @@
     top: 10px;
     left: 10px;
     width: 300px;
-    padding: 20px;
+    padding: 24px;
     border: 1px solid #ccc;
     background: #fff;
     border-radius: 4px;
     .input {
       margin: 10px 0;
+      font-size: 12px;
     }
     .icon-close {
       position: absolute;
@@ -99,7 +100,7 @@
       height: 200px;
       line-height: 200px;
       text-align: center;
-      margin: 0 auto;
+      margin: 16px auto;
     }
     .tip {
       font-size: 12px;
