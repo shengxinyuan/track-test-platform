@@ -49,7 +49,7 @@
           field="tester"
           title="测试人员"
           width="auto"
-          :filters="[...filtersIOSList]">
+          :filters="[...filtersTestList]">
         </vxe-table-column>
         <vxe-table-column
           field="developerIos"
