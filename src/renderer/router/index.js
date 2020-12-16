@@ -19,37 +19,58 @@ export default new Router({
     {
       path: '/logger',
       name: 'logger',
-      component: Logger
+      component: Logger,
+      meta: {
+        keepAlive: true
+      }
     },
     {
       path: '/document',
       name: 'document',
-      component: Document
+      component: Document,
+      meta: {
+        keepAlive: false
+      }
     },
     {
       path: '/excel',
       name: 'excel',
-      component: Excel
+      component: Excel,
+      meta: {
+        keepAlive: true
+      }
     },
     {
       path: '/logList',
       name: 'logList',
-      component: LogList
+      component: LogList,
+      meta: {
+        keepAlive: false
+      }
     },
     {
       path: '/testList',
       name: 'testList',
-      component: TestList
+      component: TestList,
+      meta: {
+        keepAlive: false
+      }
     },
     {
       path: '/user',
       name: 'user',
-      component: User
+      component: User,
+      meta: {
+        keepAlive: false
+      }
     },
     {
       path: '/webPage',
       name: 'webPage',
-      component: WebPage
+      component: WebPage,
+      meta: {
+        keepAlive: false
+      }
     },
     {
       path: '*',

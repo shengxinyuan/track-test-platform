@@ -10,12 +10,14 @@
           <div class="icon-label">帮助文档</div>
         </div>
       </a>
+      
       <router-link :to="v.path" v-for="(v) in list" :key="v.path" class="route-list-item">
         <div class="icon-box" :class="path == v.path ? 'active':''">
           <img class="icon-item"  :src="v.icon">
           <div class="icon-label">{{v.txt}}</div>
         </div>
       </router-link>
+
       <div class="last">
         <div class="icon-box">
           <div class="icon-label-l">{{$store.state.common.groupName}}</div>
@@ -27,10 +29,12 @@
           </div>
         </router-link>
       </div>
-      
     </div>
-    
-    <router-view class="main-cont" @getLoginStatus="getLoginStatus"/>
+
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive" class="main-cont" @getLoginStatus="getLoginStatus"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive" class="main-cont" @getLoginStatus="getLoginStatus"></router-view>
 
     <el-dialog
       title="登录"

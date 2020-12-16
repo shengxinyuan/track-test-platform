@@ -58,6 +58,9 @@
         json: []
       }
     },
+    activated() {
+      this.groupId = this.$store.state.common.groupId
+    },
     computed: {
       project() {
         let groupName = ''
@@ -80,14 +83,6 @@
         reader.readAsBinaryString(file.raw)
         reader.onload = ev => {
           let workBook = XLSX.read(ev.target.result, {type: 'binary', cellDates: true})
-          // //【Android完成】8月sprint2和sprint3
-          // let index = 0
-          // workBook.SheetNames.forEach((val, i) => {
-          //   console.log(val)
-          //   if (val == '11月sprint14') {
-          //     index = i
-          //   }
-          // })
           // 只取第一个sheet
           let workSheet = workBook.Sheets[workBook.SheetNames[0]]
           // 起点规则

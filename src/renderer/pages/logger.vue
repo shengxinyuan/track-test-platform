@@ -249,6 +249,8 @@
     mounted () {
       this.webSocket()
       this.ip = getIPAdress()
+    },
+    activated() {
       this.updateJson()
     },
     methods: {
