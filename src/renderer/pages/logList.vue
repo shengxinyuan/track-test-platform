@@ -46,6 +46,13 @@
           title="eventId">
         </vxe-table-column>
         <vxe-table-column
+          v-if="groupId == 1000"
+          field="module"
+          title="模块"
+          width="auto"
+          :filters="[...filtersModuleList]">
+        </vxe-table-column>
+        <vxe-table-column
           field="tester"
           title="测试人员"
           width="auto"
@@ -85,6 +92,7 @@
         selectList: [],
         testPlanId: '',
         filtersVersionList: [],
+        filtersModuleList: [],
         filtersTestList: [],
         filtersIOSList: [],
         filtersAndroidList: []
@@ -93,24 +101,29 @@
     mounted() {
       this.getEventPoint()
     },
+    computed: {
+      groupId() {
+        return this.$store.state.common.groupId
+      }
+    },
     filters: {
       filterStatus(status) {
         let txt = ''
         // 0：待验证 1：验证通过 2：验证不通过 -1：无需验证
         switch (status) {
-          case 0: 
+          case 0:
             txt = '待验证'
             break;
-          case 1: 
+          case 1:
             txt = '验证成功'
             break;
-          case 2: 
+          case 2:
             txt = '验证失败'
             break;
-          default: 
+          default:
             txt = ''
         }
-          
+
         return txt
       }
     },
@@ -123,6 +136,10 @@
           this.mode = ''
           this.testPlanId = ''
         }
+      },
+      getModuleName(eventName) {
+        let listStr = eventName.split('-');
+        return listStr.length > 1 ? listStr[0] : '';
       },
       getEventPoint() {
         const loading = this.$loading({
@@ -145,9 +162,10 @@
             let filtersTest = []
             let filtersIOS = []
             let filtersAndroid = []
-            
+            let filtersModule = []
+
             if (pointList && pointList.length) {
-              this.selectList = [] 
+              this.selectList = []
               pointList.forEach((val) => {
                 if (val.isInTestplan === 1) {
                   this.selectList.push(val)
@@ -158,6 +176,8 @@
                 val.developerAndroid = eventPoint.raw['Android']
                 val.tester = eventPoint.raw['验证']
                 val.eventName = eventPoint.raw['事件中文名'] || eventPoint.raw['事件描述']
+                val.module = this.getModuleName(eventPoint.raw['事件中文名'] || eventPoint.raw['事件描述'])
+
                 if (eventPoint.raw['任务版本'] && !filtersVersion.includes(eventPoint.raw['任务版本'])) {
                   filtersVersion.push(eventPoint.raw['任务版本'])
                 }
@@ -170,8 +190,11 @@
                 if (eventPoint.raw['验证'] && !filtersTest.includes(eventPoint.raw['验证'])) {
                   filtersTest.push(eventPoint.raw['验证'])
                 }
+                if (val.module && !filtersModule.includes(val.module)) {
+                  filtersModule.push(val.module)
+                }
               })
-              
+
               filtersVersion.forEach((val) => {
                 this.filtersVersionList.push({
                   label: val,
@@ -192,6 +215,12 @@
               })
               filtersAndroid.forEach((val) => {
                 this.filtersAndroidList.push({
+                  label: val,
+                  value: val
+                })
+              })
+              filtersModule.forEach((val) => {
+                this.filtersModuleList.push({
                   label: val,
                   value: val
                 })
