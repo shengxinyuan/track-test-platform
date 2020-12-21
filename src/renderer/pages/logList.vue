@@ -63,6 +63,11 @@
           title="开发人员(Android)"
           :filters="filtersAndroidList">
         </vxe-table-column>
+        <vxe-table-column title="操作" fixed="right" width="100">
+            <template v-slot="{ row }">
+              <vxe-button type="text" @click="deleteItem(row)">删除</vxe-button>
+            </template>
+          </vxe-table-column>
       </vxe-table>
     </div>
     <div class="conform-btn-box">
@@ -115,6 +120,36 @@
       }
     },
     methods: {
+      deleteItem(row) {
+        this.$fetch({
+          url: '/eventTracking/api/eventPoint/uploadList',
+          type: 'post',
+          data: {
+            groupId: this.$store.state.common.groupId,
+            pointList: [
+              {
+                eventId: row.eventId,
+                eventPoint: row.eventPoint,
+                version: row.versionName,
+                isAvaliable: 0
+              }
+            ]
+          }
+        }).then((res) => {
+          this.getEventPoint()
+          if (res.code === 0) {
+            this.$message({
+              message: '删除成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '删除失败',
+              type: 'error'
+            })
+          }
+        })
+      },
       getTestPlanId() {
         if (this.$route.query.testPlanId) {
           this.mode = 'test'

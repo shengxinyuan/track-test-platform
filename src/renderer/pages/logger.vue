@@ -42,8 +42,10 @@
           <el-col class="list list2" v-if="selectedItem">
             <h5 class="list-title">
               <span class="title-txt">埋点对比</span>
-              <el-button class="" size="mini" icon="el-icon-delete" @click="deleteList('selectedLoggerList')"></el-button>
-              <el-button class="" size="mini" icon="el-icon-s-operation" @click="fliterSelectedLoggerList"></el-button>
+              <el-button size="mini" icon="el-icon-delete" @click="deleteList('selectedLoggerList')"></el-button>
+              <el-button size="mini" icon="el-icon-s-operation" @click="fliterSelectedLoggerList"></el-button>
+              <el-checkbox v-model="toggleSaveData">切换保留数据</el-checkbox>
+
             </h5>
             <el-collapse class="list2-item-box list-cont">
               <el-collapse-item 
@@ -243,7 +245,8 @@
         dialogVisible: false,
         dialogCheckList: [],
         dialogList: [],
-        testPlanId: ''
+        testPlanId: '',
+        toggleSaveData: false // 切换埋点不清除 埋点对比列表
       }
     },
     mounted () {
@@ -318,7 +321,7 @@
       // 选择埋点进行比较（唯一）
       selectTester(index) {
         this.selectedItem = this.rawList[index]
-        if (this.selectedItem) {
+        if (this.selectedItem && !this.toggleSaveData) {
           this.selectedLoggerList = []
         }
         this.rightKey = ''
