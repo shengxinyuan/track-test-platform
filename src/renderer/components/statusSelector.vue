@@ -7,12 +7,12 @@
         <el-button size="mini" type="danger" icon="el-icon-close" circle @click="change(2)"></el-button>
       </div>
     </div>
-    <el-button 
-      v-else 
+    <el-button
+      v-else
       circle
       size="mini"
       :type="type"
-      :icon="icon" 
+      :icon="icon"
       @click="toast"
     />
   </div>
@@ -68,6 +68,9 @@
               message: '状态变更成功',
               type: 'success'
             })
+            if (status == 2) {
+              this.$emit('handelBugModal', status)
+            }
           }
         })
       },

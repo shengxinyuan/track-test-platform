@@ -26,7 +26,12 @@
                       <div class="txt">{{v.name}}</div>
                       <div class="txt">{{v.raw['event_id'] || v.raw['eventId']}}</div>
                     </div>
-                    <StatusSelector v-model="v.status" :info="v" @click.stop.native />
+                    <StatusSelector
+                      v-model="v.status"
+                      :info="v"
+                      @click.stop.native
+                      v-on:handelBugModal="handelBugModal"
+                    />
                   </div>
                 </template>
                 <div class="detail-cont">
@@ -46,11 +51,11 @@
               <el-button class="" size="mini" icon="el-icon-s-operation" @click="fliterSelectedLoggerList"></el-button>
             </h5>
             <el-collapse class="list2-item-box list-cont">
-              <el-collapse-item 
+              <el-collapse-item
                 v-for="(selectedLogger, i) in selectedLoggerList"
                 :key="i"
                 :name="i"
-                class="list2-item" 
+                class="list2-item"
                 :class="isSelect(selectedLogger)"
               >
                 <template slot="title">
@@ -111,6 +116,79 @@
         </el-checkbox-group>
       </div>
     </el-dialog>
+
+    <el-dialog
+        v-if="groupId == 1000"
+        title="生成bug单"
+        :visible.sync="isBugModelVisible"
+        :modal-append-to-body="false"
+        width="500px"
+        center
+        class="dialog-con"
+      >
+        <el-form :model="bugModel" ref="modifyForm" style="padding-right: 26px;">
+          <el-form-item label="标题：" label-width="100px" required>
+            <el-input v-model="bugModel.title" placeholder="请输入标题" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="描述：" label-width="100px" required>
+            <el-input
+              v-model="bugModel.description"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入内容描述"
+              auto-complete="off"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="版本：" label-width="100px" required>
+            <el-input placeholder="请选择tapd迭代版本" v-model="bugModel.iterationId">
+              <el-select v-model="bugModel.versionId" slot="prepend" @change="handleVerson(bugModel.versionId)" placeholder="请选择版本" style="width: 150px">
+                <el-option
+                  v-for="d in versionList"
+                  :key="d.versionId"
+                  :label="d.version"
+                  :value="d.versionId"
+                >
+                  {{d.version}}
+                </el-option>
+              </el-select>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="平台：" label-width="100px" required>
+            <el-select v-model="bugModel.module" placeholder="请选择平台" auto-complete="off" style="width: 100%" required>
+              <el-option
+                v-for="d in platformList"
+                :key="d.id"
+                :label="d.name"
+                :value="d.name"
+              >{{d.name}}</el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="处理人：" label-width="100px" required>
+            <el-autocomplete
+              popper-class="my-autocomplete"
+              v-model="selectedOwner"
+              :fetch-suggestions="querySearch"
+              placeholder="请输入处理人p账号"
+              @select="handleSelect"
+              style="width: 100%;">
+              <template slot-scope="{ item }">
+                <span class="addr">{{ item.value }}</span>
+              </template>
+              <el-option
+                v-for="d in platformList"
+                :key="d.id"
+                :label="d.name"
+                :value="d.id"
+              >{{d.name}}</el-option>
+            </el-autocomplete>
+          </el-form-item>
+          </el-form-item>
+          <el-form-item style="text-align: center">
+              <el-button type="primary" @click="createBug">确定</el-button>
+              <el-button @click="cancel" style="margin-left: 35px;">取消</el-button>
+            </el-form-item>
+        </el-form>
+      </el-dialog>
   </div>
 </template>
 
@@ -243,7 +321,35 @@
         dialogVisible: false,
         dialogCheckList: [],
         dialogList: [],
-        testPlanId: ''
+        testPlanId: '',
+        versionList: [],
+        selectedOwner:'',
+        userList: [],
+        isBugModelVisible: false,
+        bugModel: {
+          workspaceId: 20374132,
+          title: '',
+          description: '',
+          versionId: 2,
+          iterationId: "",
+          module: "",
+          owner_username: "",
+          owner_paccount: ""
+        }, //bug 单子单元
+        platformList: [
+          {
+            id: 1,
+            name: 'IOS',
+          },
+          {
+            id: 2,
+            name: 'Android',
+          },
+          {
+            id: 3,
+            name: 'Flutter',
+          }
+        ]
       }
     },
     mounted () {
@@ -252,6 +358,11 @@
     },
     activated() {
       this.updateJson()
+    },
+    computed: {
+      groupId() {
+        return this.$store.state.common.groupId
+      }
     },
     methods: {
       // 进入页面后更新数据
@@ -265,7 +376,7 @@
           this.$fetch({
             url: '/eventTracking/api/eventPoint/list',
             data: {
-              groupId: this.$store.state.common.groupId,
+              groupId: this.groupId,
               testplanId: this.testPlanId
             }
           }).then((res) => {
@@ -297,7 +408,7 @@
       filterRawList() {
         if (!this.fliterName) {
           this.rawList = this.json
-          return 
+          return
         }
         let list = []
         let name = this.fliterName
@@ -325,10 +436,10 @@
       },
       // 新增埋点数据
       addLogger (event) {
-        const groupId = this.$store.state.common.groupId
+        // const groupId = this.$store.state.common.groupId
         if (this.receiveStatus) {
           let raw = event.data
-          if (groupId == 1200) {
+          if (this.groupId == 1200) {
             if (/android/.test(raw) && /oaid/.test(raw)) {
               // 起点android
               try {
@@ -393,7 +504,7 @@
             }
           } else {
             this.receiveList.push(raw)
-            return 
+            return
           }
 
           if (typeof raw === 'object') {
@@ -402,7 +513,7 @@
           }
 
           // 起点数据event_id拼接
-          if(!raw['event_id'] && groupId == 1200) {
+          if(!raw['event_id'] && this.groupId == 1200) {
             raw['event_id'] = this.getQDEventId(raw)
           }
 
@@ -416,7 +527,7 @@
             let eventId = raw['event_id'] || raw['eventId']
             let isSelect = this.selectedItem.raw['event_id'] === eventId //非起点匹配，因为event_id唯一
             // 起点even_id 模糊匹配
-            if (groupId == 1200) {
+            if (this.groupId == 1200) {
               isSelect = this.compareQDEventId(eventId)
             }
 
@@ -426,11 +537,11 @@
                 status = 0 // ignore
               } else if (value == v || value.toString().includes('任意值Y')) {
                 status = 1 // success
-              } else if ((reg.test(value) 
-                || k == 'extend1' 
-                || k == 'param' 
+              } else if ((reg.test(value)
+                || k == 'extend1'
+                || k == 'param'
                 || value.toString().includes('非固定值')
-                || groupId == 1200)
+                || this.groupId == 1200)
                 &&  value != v) { // '非固定值'校验目前只有起点
                 status = 3
               } else if (!reg.test(value) && value != v) {
@@ -438,7 +549,7 @@
               } else {
                 status = 4
               }
-              
+
               infoList.push({
                 key: k,
                 value: v,
@@ -471,7 +582,7 @@
                 val.counter++
                 hasEventId = true
               }
-            }) 
+            })
             if (!hasEventId) {
               this.selectedLoggerList.push({
                 eventId: eventId,
@@ -499,7 +610,7 @@
       // 是否匹配到上报数据
       isSelect(selectedLogger) {
         // 起点event_id 需要模糊匹配
-        if (this.$store.state.common.groupId == 1200) {
+        if (this.groupId == 1200) {
           return this.compareQDEventId(selectedLogger.eventId) ? 'select' : ''
         } else {
           return selectedLogger.eventId === this.selectedItem.raw['event_id'] ? 'select' : ''
@@ -640,6 +751,95 @@
           "pdt":"1",
         })})
       },
+
+      /**
+       * 支持一键提bug功能
+       */
+      // 展开bug单modal
+      handelBugModal() {
+        Promise.all([this.loadVersionData(), this.loadUserData()]).then(res => {
+          this.isBugModelVisible = this.isBugModelVisible ? false : true
+        })
+      },
+      loadVersionData() {
+        return this.$fetch({
+          url: '/eventTracking/api/version/list',
+          data: {
+            groupId: this.groupId,
+          }
+        }).then((res) => {
+          if (res.code == '0') {
+            this.versionList = res.data.versionList;
+          }
+        })
+      },
+      loadUserData() {
+        return this.$fetch({
+          url: '/eventTracking/api/user/list',
+        }).then((res) => {
+          if (res.code == '0') {
+            const groupInfo = res.data.groupInfo
+            groupInfo.forEach((val) => {
+              if (val.groupId == this.groupId) {
+                this.bugModel.workspaceId = val.workspaceId
+                this.userList = val.userList;
+              }
+            })
+          }
+        })
+      },
+      handleVerson(versionId) {
+        this.versionList.forEach((val) => {
+          if (val.versionId == versionId) {
+            this.bugModel.iterationId = val.iterationId
+          }
+        })
+      },
+      /*处理人搜索*/
+      querySearch(queryString, cb) {
+        const userList = this.userList;
+        let results = []
+        userList.forEach((val) => {
+          results.push({
+            value: val.p_account + '(' + val.userName + ')'
+          })
+        })
+        results = queryString ? results.filter(this.createFilter(queryString)) : results;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (user) => {
+          return (user.value.toLowerCase().indexOf(queryString.toLowerCase()) != -1);
+        };
+      },
+      /* 匹配选中的 P账号 & username */
+      handleSelect(selectOwner) {
+        const list = selectOwner.value.split('(')
+        this.bugModel.owner_username = list[1].split(')')[0]
+        this.bugModel.owner_paccount = list[0]
+      },
+      /* 生成bug单 */
+      createBug() {
+        this.$fetch({
+          url: '/eventTracking/api/bug/create',
+          type: 'POST',
+          data: this.bugModel
+        }).then((res) => {
+          if (res.code == '0') {
+            this.selectedOwner = ''
+            this.bugModel = {}
+            this.isBugModelVisible = this.isBugModelVisible ? false : true
+          }
+        })
+      },
+
+      /* 取消生成bug单*/
+      cancel() {
+        this.selectedOwner = ''
+        this.bugModel = {}
+        this.isBugModelVisible = this.isBugModelVisible ? false : true
+      }
     },
   }
 </script>
@@ -706,7 +906,7 @@
     flex: 1;
     overflow-y: scroll;
   }
-} 
+}
 .list1 {
   width: 450px;
   .list-title {
@@ -726,7 +926,7 @@
     }
   }
   .title-box {
-    font-family: Arial, Helvetica, sans-serif;  
+    font-family: Arial, Helvetica, sans-serif;
     position: relative;
     display: flex;
     height: 48px;
@@ -831,5 +1031,4 @@
 .check-item {
   width: 120px;
 }
-
 </style>
