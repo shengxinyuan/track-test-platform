@@ -134,34 +134,46 @@
     },
     methods: {
       deleteItem(row) {
-        this.$fetch({
-          url: '/eventTracking/api/eventPoint/uploadList',
-          type: 'post',
-          data: {
-            groupId: this.$store.state.common.groupId,
-            pointList: [
-              {
-                eventId: row.eventId,
-                eventPoint: row.eventPoint,
-                version: row.versionName,
-                isAvaliable: 0
-              }
-            ]
-          }
-        }).then((res) => {
-          this.getEventPoint()
-          if (res.code === 0) {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            })
-          } else {
-            this.$message({
-              message: '删除失败',
-              type: 'error'
-            })
-          }
-        })
+        this.$confirm('确认删除该埋点, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$fetch({
+            url: '/eventTracking/api/eventPoint/uploadList',
+            type: 'post',
+            data: {
+              groupId: this.$store.state.common.groupId,
+              pointList: [
+                {
+                  eventId: row.eventId,
+                  eventPoint: row.eventPoint,
+                  version: row.versionName,
+                  isAvaliable: 0
+                }
+              ]
+            }
+
+          }).then((res) => {
+            this.getEventPoint()
+            if (res.code === 0) {
+              this.$message({
+                message: '删除成功',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: '删除失败',
+                type: 'error'
+              })
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
       },
       getTestPlanId() {
         if (this.$route.query.testPlanId) {
