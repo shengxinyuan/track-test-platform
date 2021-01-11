@@ -26,7 +26,7 @@
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div slot="tip" class="tip-cont">只能上传excel文件</div>
       <div slot="tip" class="tip-cont red">当前项目：「{{project}}」，文档上传远端请注意操作</div>
-      <div slot="tip" class="tip-cont red">上传文档前，请先点击立即使用去查看是否解析正确</div>
+      <div slot="tip" class="tip-cont red">上传远端前，请先点击立即使用去查看是否解析正确</div>
     </el-upload>
     <div class="excel-btn">
       <el-button @click="update" type="danger">上传远端</el-button>

@@ -15,13 +15,9 @@ const mutations = {
   },
   common_setGroupId(state, res) {
     state.groupId = res
-    if (res == 1000) {
-      state.groupName = '红袖'
-    } else if (res == 1100) {
-      state.groupName = '海外'
-    } else if (res == 1200) {
-      state.groupName = '起点'
-    }
+  },
+  common_setGroupName(state, res) {
+    state.groupName = res
   },
 }
 

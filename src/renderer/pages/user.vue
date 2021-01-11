@@ -131,6 +131,7 @@
           roleName: '',
           groupIds: []
         },
+        groupMap: {},
         roleList: [
           {
             name: '管理员',
@@ -196,6 +197,7 @@
         }).then((res) => {
           if (+res.code === 0) {
             this.groupId = +this.$store.state.common.groupId
+            this.groupMap = res.data.groupInfo
             res.data.ywaccount = res.data.ywaccount + '@yuewen.com'
             this.userInfo = Object.assign(this.userInfo, res.data);
           }
@@ -205,7 +207,13 @@
       save() {
         this.$store.commit('common_setGroupId', this.groupId)
         localStorage.setItem('groupId', this.groupId);
-
+        let name = ''
+        this.groupMap.forEach(val => {
+          if (val.groupId == this.groupId) {
+            name = val.groupName
+          }
+        });
+        this.$store.commit('common_setGroupName', name)
         this.$message({
           message: '切换成功',
           type: 'success',

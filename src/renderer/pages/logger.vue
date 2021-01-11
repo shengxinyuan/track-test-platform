@@ -441,7 +441,14 @@
         // const groupId = this.$store.state.common.groupId
         if (this.receiveStatus) {
           let raw = event.data
-          if (this.groupId == 1200) {
+          
+          if (this.groupId == 1101) {// 海外PC
+            raw = decodeURIComponent(raw)
+            raw = parseUrl(raw)
+          } else if (this.groupId == 1102) {// 海外M站
+            raw = decodeURIComponent(raw)
+            raw = parseUrl(raw)
+          } else if (this.groupId == 1200) {// 起点
             if (/android/.test(raw) && /oaid/.test(raw)) {
               // 起点android
               try {

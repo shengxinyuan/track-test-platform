@@ -147,15 +147,25 @@
               url: '/eventTracking/api/user/info'
             }).then((res) => {
               if (res.code === 0) {
+                let map = res.data.groupInfo
                 this.$store.commit('common_setUserInfo', {
                   ...res.data
                 })
                 if (!this.groupId) {
                   this.groupId = res.data.groupInfo[0].groupId
                   this.$store.commit('common_setGroupId', this.groupId)
+                  this.$store.commit('common_setGroupName', res.data.groupInfo[0].groupName)
                   localStorage.setItem('groupId', this.groupId);
                 } else {
+                  let name = ''
                   this.$store.commit('common_setGroupId', this.groupId)
+                  map.forEach(val => {
+                    if (val.groupId == this.groupId) {
+                      name = val.groupName
+                    }
+                  });
+                  console.log(name);
+                  this.$store.commit('common_setGroupName', name)
                   localStorage.setItem('groupId', this.groupId);
                 }
               }
@@ -232,7 +242,7 @@
       width: 100%;
       color: #fff;
       text-align: center;
-      font-size: 16px;
+      font-size: 14px;
       text-decoration: none !important;
     }
   }
